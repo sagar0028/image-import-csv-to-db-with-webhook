@@ -1,6 +1,7 @@
 import axios from 'axios';
 import sharp from 'sharp';
 import image from "../module/image"
+import logger from '../utils/logger';
 
 export const processImages = async (data: any[], requestId: string) => {
     try {
@@ -49,5 +50,6 @@ export const processImages = async (data: any[], requestId: string) => {
     } catch (error) {
       console.error('Error processing images', error);
       await image.updateRequestStatus(requestId, 'failed');
+      logger.error(error)
     }
   };

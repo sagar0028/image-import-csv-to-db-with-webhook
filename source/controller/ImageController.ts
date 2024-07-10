@@ -5,6 +5,7 @@ import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { processImages } from '../services/imageProcessor';
 import image from "../module/image";
+import logger from "../utils/logger";
 
 const upload = multer({ dest: 'uploads/' });
 
@@ -22,6 +23,7 @@ class ImageController {
     }
 
     private uploadCsv = async (req: Request, res: Response) => {
+      try {
         const requestId = uuidv4();
         const file = req.file;
         const webhookUrl = req.body.webhookUrl;
@@ -48,18 +50,29 @@ class ImageController {
                 res.status(200).send({ requestId });
             }
           });
+      } catch (error) {
+        res.status(500).send("Somethig went wrong");
+        logger.error(error);
+      }  
     };
-
+    
     private  checkStatus = async (req: Request, res: Response) => {
+      try {
         const requestId = req.params.id;
       
         const result = await image.getStatus(requestId)
         if (result.rows.length === 0) {
           return res.status(404).send('Request ID not found.');
         }
-      
         res.status(200).send({ status: result.rows[0].status });
-      };
+      }
+      catch (error) {
+        res.status(500).send("Somethig went wrong");
+        logger.error(error);
+      }
+    
+        
+  }
 }
 
 export default new ImageController()
